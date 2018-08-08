@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 class BrainfugVM(writer: Writer, reader: Reader, val array_size: Int = 65536) {
   private var pointer:Int = 0
-  private var data_array:Array[Int] = Array.fill(array_size){0}
+  private val data_array:Array[Int] = Array.fill(array_size){0}
   private val ret_stack = mutable.Stack[Int]()
 
   def call(command: Command, pc:Int):Int = command match {

@@ -1,14 +1,32 @@
 package brainfug
 
 import java.io._
+import java.nio.charset.Charset
+import java.nio.file.{Files, NoSuchFileException, Paths}
 
 object Main extends App {
-  val program = Program.compile("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.").optimize()
+  args.headOption match {
+    case None => System.err.println("no source file specified")
+    case Some(x) =>
+      // Read source code to string
+      try {
+        val encoded = Files.readAllBytes(Paths.get(x))
+        val source_code = new String(encoded, Charset.defaultCharset())
 
-  val writer = new OutputStreamWriter(System.out)
-  val reader = new InputStreamReader(System.in)
+        // Create stdin and stdout readers
+        val stdin = new InputStreamReader(System.in)
+        val stdout = new OutputStreamWriter(System.out)
 
-  val vm = new BrainfugVM(writer, reader)
+        // Create VM
+        val vm = new BrainfugVM(stdout, stdin)
 
-  program.run(vm)
+        // Compile and optimize program
+        val program = Program.compile(source_code).optimize()
+
+        // Run program
+        program.run(vm)
+      } catch {
+        case _: NoSuchFileException => System.err.println(s"cannot load file: $x")
+      }
+  }
 }
